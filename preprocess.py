@@ -46,7 +46,7 @@ def dni_to_power(dni, efficiency=0.2, area=100):
 # Load and process solar data
 solar_data = pd.read_csv('D:/dataset/solardata/1216837_46.81_-74.86_tdy-2022.csv', skiprows=2)
 solar_data['datetime'] = pd.to_datetime({
-    'year': 2013,
+    'year': 2014,
     'month': solar_data['Month'],
     'day': solar_data['Day'],
     'hour': solar_data['Hour'],
@@ -58,6 +58,8 @@ solar_data.set_index('datetime', inplace=True)
 solar_data['P_solar'] = solar_data['DNI'].apply(dni_to_power)
 hourly_solar = solar_data['P_solar'].resample('h').mean()
 
+print(f"Solar data shape: {hourly_solar.shape}")
+
 # Load and process wind data
 wind_data = pd.read_csv('D:\dataset\winddata\wind_2018.csv', skiprows=1)
 wind_data['datetime'] = pd.to_datetime(wind_data[['Year', 'Month', 'Day', 'Hour']])
@@ -67,13 +69,15 @@ wind_data.set_index('datetime', inplace=True)
 wind_data['P_wind'] = wind_data['wind speed at 10m (m/s)'].apply(wind_to_power)
 hourly_wind = wind_data['P_wind'].resample('h').mean()
 
+print(f"Wind data shape: {hourly_wind.shape}")
+
 # Load house consumption data
 house_data = pd.read_csv('D:/dataset/Processed_Data_CSV/House_1.csv')
 house_data['datetime'] = pd.to_datetime(house_data['Time'])
 
-# Filter one year of data (from 2013-10-09 to 2014-10-09)
-start_date = house_data['datetime'].min()
-end_date = start_date + pd.DateOffset(years=1)
+# Filter data for the year 2014
+start_date = pd.Timestamp('2014-01-01')
+end_date = pd.Timestamp('2015-01-01')
 house_data = house_data[(house_data['datetime'] >= start_date) & 
                        (house_data['datetime'] < end_date)]
 
@@ -81,6 +85,8 @@ house_data.set_index('datetime', inplace=True)
 
 # Resample house data to hourly averages
 hourly_house = house_data['Aggregate'].resample('h').mean()
+
+print(f"House data shape: {hourly_house.shape}")
 
 # Normalize all datasets
 scaler_wind = MinMaxScaler()
@@ -91,18 +97,28 @@ hourly_wind_normalized = scaler_wind.fit_transform(hourly_wind.values.reshape(-1
 hourly_solar_normalized = scaler_solar.fit_transform(hourly_solar.values.reshape(-1, 1))
 hourly_house_normalized = scaler_house.fit_transform(hourly_house.values.reshape(-1, 1))
 
+print(f"Normalized wind shape: {hourly_wind_normalized.shape}")
+print(f"Normalized solar shape: {hourly_solar_normalized.shape}")
+print(f"Normalized house shape: {hourly_house_normalized.shape}")
+
 # Convert back to series with datetime index
 hourly_wind_normalized = pd.Series(hourly_wind_normalized.flatten(), index=hourly_wind.index)
 hourly_solar_normalized = pd.Series(hourly_solar_normalized.flatten(), index=hourly_solar.index)
 hourly_house_normalized = pd.Series(hourly_house_normalized.flatten(), index=hourly_house.index)
 
 # Align all data to the same year
-hourly_wind_normalized.index = hourly_wind_normalized.index.map(lambda x: x.replace(year=2013))
+hourly_wind_normalized.index = hourly_wind_normalized.index.map(lambda x: x.replace(year=2014))
+
+print(f"Wind data range: {hourly_wind_normalized.index.min()} to {hourly_wind_normalized.index.max()}")
+print(f"Solar data range: {hourly_solar_normalized.index.min()} to {hourly_solar_normalized.index.max()}")
+print(f"House data range: {hourly_house_normalized.index.min()} to {hourly_house_normalized.index.max()}")
 
 # Combine all datasets
 combined_data = pd.concat([hourly_wind_normalized, hourly_solar_normalized, hourly_house_normalized], axis=1)
 combined_data.columns = ['P_wind', 'P_solar', 'house_consumption']
 combined_data.dropna(inplace=True)
+
+print(f"Combined data shape: {combined_data.shape}")
 
 # Create output directory if it doesn't exist
 output_dir = 'D:/dataset/output'
