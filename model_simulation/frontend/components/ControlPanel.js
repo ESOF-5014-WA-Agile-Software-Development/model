@@ -15,9 +15,9 @@ export default function ControlPanel() {
     try {
       const res = await purchaseEnergy({ type, amount: parseFloat(amount) });
       if (res.data.success) {
-        alert(`购买成功！剩余存量: ${JSON.stringify(res.data.storage)}`);
+        alert(`购买成功！剩余存量: ${res.data.storage}`);
       } else {
-        alert(`购买失败: ${res.data.error}`);
+        alert(`购买失败，存量不足！剩余存量: ${res.data.storage}`);
       }
     } catch (error) {
       alert("请求失败，请检查后端服务是否正常运行。");
@@ -26,7 +26,7 @@ export default function ControlPanel() {
 
   return (
     <div className="border p-4 rounded shadow space-y-4">
-      <h2 className="font-bold text-lg">购买能源 (Energy Purchase)</h2>
+      <h2 className="font-bold text-lg">能源购买 (统一存量: 800)</h2>
       <div className="space-x-2">
         <select value={type} onChange={(e) => setType(e.target.value)} className="border p-2 rounded">
           <option value="wind">风能 (Wind)</option>
