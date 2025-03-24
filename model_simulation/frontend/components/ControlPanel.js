@@ -7,6 +7,7 @@ export default function ControlPanel() {
   const [type, setType] = useState('wind');
 
   const handlePurchase = async () => {
+    /*
     if (!amount || parseFloat(amount) <= 0) {
       alert("请输入有效的购买量");
       return;
@@ -21,11 +22,11 @@ export default function ControlPanel() {
       }
     } catch (error) {
       alert("请求失败，请检查后端服务是否正常运行。");
-    }
+    }*/
   };
 
   return (
-    <div className="border p-4 rounded shadow space-y-4">
+    /*<div className="border p-4 rounded shadow space-y-4">
       <h2 className="font-bold text-lg">能源购买 (统一存量: 800)</h2>
       <div className="space-x-2">
         <select value={type} onChange={(e) => setType(e.target.value)} className="border p-2 rounded">
@@ -46,6 +47,7 @@ export default function ControlPanel() {
           购买
         </button>
       </div>
-    </div>
+    </div>*/
+    <div></div>
   );
 }

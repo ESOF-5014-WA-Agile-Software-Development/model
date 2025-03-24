@@ -3,7 +3,7 @@ import pandas as pd
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 from data_handler import EnergyStorage
-from predict import load_model, predict_next_hour
+from predict import load_model, predict_next_hour, calculate_trade_action, predict_multiple_hours
 from pydantic import BaseModel
 
 app = FastAPI()
@@ -17,7 +17,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-energy_storage = EnergyStorage(initial_storage=800)
+energy_storage = EnergyStorage(initial_storage=17)
 
 data_df = pd.read_csv('data/processed_data_0101_to_1231.csv', index_col=0)
 data_records = data_df.to_dict(orient='records')
@@ -40,10 +40,13 @@ async def purchase_energy(request: PurchaseRequest):
 async def websocket_endpoint(websocket: WebSocket):
     await websocket.accept()
     i = 0
+    datetime_index = data_df.index if isinstance(data_df.index[0], pd.Timestamp) else pd.date_range('2025-01-01', periods=len(data_records), freq='H')
+
     while True:
         try:
             current_data = data_records[i % len(data_records)]
-            
+            now_time = datetime_index[i % len(datetime_index)]
+
             recent_sequence = [list(current_data.values())] * 24
             predicted_values = predict_next_hour(model, recent_sequence, device).flatten().tolist()
 
@@ -53,24 +56,23 @@ async def websocket_endpoint(websocket: WebSocket):
                 consumption=current_data['house_consumption']
             )
 
-            real = {
-                "P_wind": current_data['P_wind'],
-                "P_solar": current_data['P_solar'],
-                "house_consumption": current_data['house_consumption']
-            }
-
-            predict = {
-                "P_wind": predicted_values[0],
-                "P_solar": predicted_values[1],
-                "house_consumption": predicted_values[2]
-            }
+            future_predictions = predict_multiple_hours(model, recent_sequence, device, hours=10)
+            recommendation, future_storages = calculate_trade_action(energy_storage.storage, future_predictions)
 
             await websocket.send_json({
-                "real": real,
-                "predict": predict,
-                "storage": energy_storage.storage
+                "datetime": now_time.strftime('%Y-%m-%d %H:%M'),
+                "real": current_data,
+                "predict": {
+                    "P_wind": predicted_values[0],
+                    "P_solar": predicted_values[1],
+                    "house_consumption": predicted_values[2]
+                },
+                "storage": energy_storage.storage,
+                "recommendation": recommendation,
+                "future_storages": future_storages[1:]  # drop current
             })
-            await asyncio.sleep(3)
+
+            await asyncio.sleep(1)  # 每秒 = 1小时
             i += 1
         except WebSocketDisconnect:
             break
