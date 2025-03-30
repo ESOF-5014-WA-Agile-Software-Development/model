@@ -32,13 +32,13 @@ export default function RealTimeChart() {
         console.log('WebSocket connected successfully');
       };
       
-      socket.onmessage = (event) => {
+    socket.onmessage = (event) => {
         try {
-          const receivedData = JSON.parse(event.data);
-          setData(prevData => [
-            ...prevData.slice(-20),
-            {
-              timestamp: new Date().toLocaleTimeString(),
+      const receivedData = JSON.parse(event.data);
+      setData(prevData => [
+        ...prevData.slice(-20),
+        {
+          timestamp: new Date().toLocaleTimeString(),
               storage: receivedData.storage || 0,
               real_wind: receivedData.real?.P_wind || 0,
               real_solar: receivedData.real?.P_solar || 0,
@@ -46,7 +46,7 @@ export default function RealTimeChart() {
               predict_wind: receivedData.predict?.P_wind || 0,
               predict_solar: receivedData.predict?.P_solar || 0,
               predict_consumption: receivedData.predict?.house_consumption || 0,
-              datetime: receivedData.datetime,
+          datetime: receivedData.datetime,
               action: receivedData.recommendation?.action || 'hold',
               amount: receivedData.recommendation?.amount || 0,
               confidence: receivedData.recommendation?.confidence || 0,
@@ -137,8 +137,8 @@ export default function RealTimeChart() {
               <div className="flex justify-between items-center mb-4">
                 <h2 className="text-xl font-semibold text-gray-900">Storage Level Analysis</h2>
               </div>
-              <ResponsiveContainer width="100%" height={300}>
-                <AreaChart data={data}>
+      <ResponsiveContainer width="100%" height={300}>
+        <AreaChart data={data}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0"/>
                   <XAxis dataKey="datetime" stroke="#666"/>
                   <YAxis stroke="#666"/>
@@ -159,9 +159,9 @@ export default function RealTimeChart() {
                   <Area type="monotone" dataKey="storage" stroke="#3b82f6" fill="#3b82f6" name="Current Storage"/>
                   <Area type="monotone" dataKey="storage_stats.min_24h" stroke="#f97316" fill="#f97316" name="Min Storage (24h)" opacity={0.3}/>
                   <Area type="monotone" dataKey="storage_stats.max_24h" stroke="#22c55e" fill="#22c55e" name="Max Storage (24h)" opacity={0.3}/>
-                </AreaChart>
-              </ResponsiveContainer>
-            </div>
+        </AreaChart>
+      </ResponsiveContainer>
+        </div>
 
             {/* Energy Data Chart Card */}
             <div className="bg-white rounded-xl shadow-sm p-6">
@@ -175,20 +175,20 @@ export default function RealTimeChart() {
                   <option value="wind">Wind Power</option>
                   <option value="solar">Solar Power</option>
                   <option value="consumption">Power Consumption</option>
-                </select>
-              </div>
-              <ResponsiveContainer width="100%" height={300}>
-                <AreaChart data={data}>
-                  <defs>
-                    <linearGradient id="realColor" x1="0" y1="0" x2="0" y2="1">
+        </select>
+      </div>
+      <ResponsiveContainer width="100%" height={300}>
+        <AreaChart data={data}>
+          <defs>
+            <linearGradient id="realColor" x1="0" y1="0" x2="0" y2="1">
                       <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.8}/>
                       <stop offset="95%" stopColor="#3b82f6" stopOpacity={0}/>
-                    </linearGradient>
-                    <linearGradient id="predictColor" x1="0" y1="0" x2="0" y2="1">
+            </linearGradient>
+            <linearGradient id="predictColor" x1="0" y1="0" x2="0" y2="1">
                       <stop offset="5%" stopColor="#22c55e" stopOpacity={0.8}/>
                       <stop offset="95%" stopColor="#22c55e" stopOpacity={0}/>
-                    </linearGradient>
-                  </defs>
+            </linearGradient>
+          </defs>
                   <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0"/>
                   <XAxis dataKey="datetime" stroke="#666"/>
                   <YAxis stroke="#666"/>
@@ -208,8 +208,8 @@ export default function RealTimeChart() {
                   />
                   <Area type="monotone" dataKey={`real_${selected}`} stroke="#3b82f6" fillOpacity={1} fill="url(#realColor)" name={`Real ${selected}`} />
                   <Area type="monotone" dataKey={`predict_${selected}`} stroke="#22c55e" fillOpacity={1} fill="url(#predictColor)" name={`Predict ${selected}`} />
-                </AreaChart>
-              </ResponsiveContainer>
+        </AreaChart>
+      </ResponsiveContainer>
             </div>
           </div>
 

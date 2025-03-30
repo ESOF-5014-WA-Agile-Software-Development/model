@@ -109,23 +109,32 @@ The model simulation includes additional optimization functions:
    - Provides trend analysis for future consumption
    - Enables long-term planning and optimization
 
-2. **Trading Recommendations**
+2. **Energy Trading System**
    - Advanced trading strategy with multiple decision factors:
      - Dynamic threshold adjustment based on prediction confidence
      - Multiple time horizon analysis
      - Risk management and volatility consideration
      - Market trend analysis
+   - Supply-Demand Analysis:
+     - Compares total power generation (wind + solar) with total demand
+     - Considers current storage levels
+     - Evaluates future predictions
+   - Trading Actions:
+     - Buy: When total generation is less than demand and storage is low
+     - Sell: When total generation exceeds demand and storage is high
+     - Hold: When storage levels are sufficient or supply-demand difference is small
    - Confidence-based decision making:
-     - High confidence trades (>80% confidence)
-     - Moderate confidence trades with trend consideration (>60% confidence)
+     - High confidence (>60%): Clear supply-demand imbalance
+     - Low confidence (<60%): Small supply-demand difference
      - Risk-adjusted position sizing
-   - Detailed trade analysis:
-     - Action recommendation (buy/sell/hold)
-     - Trade amount calculation
-     - Confidence score
-     - Decision reasoning
-   - Risk management features:
-     - Safety thresholds for storage levels
+   - Storage Management:
+     - Monitors current storage levels
+     - Tracks 24-hour minimum and maximum storage
+     - Considers storage capacity (30 kWh)
+     - Provides storage percentage utilization
+   - Risk Management:
+     - Cautious operation recommended for low confidence scenarios
+     - Considers storage buffer for system stability
      - Maximum trade size limits
      - Trend-based position sizing
      - Volatility-adjusted confidence scoring
@@ -197,51 +206,6 @@ npm run dev
 * **Real-time Monitoring**: Add real-time monitoring capabilities for continuous prediction
 * **API Integration**: Enable integration with external energy monitoring systems
 
-# Energy Trading System
-
-A real-time energy trading system that uses machine learning to predict energy production and consumption, and provides trading recommendations.
-
-## Features
-
-- Real-time energy monitoring dashboard
-- Machine learning-based predictions for:
-  - Wind power generation
-  - Solar power generation
-  - Power consumption
-- Storage level analysis
-- Automated trading recommendations
-- WebSocket-based real-time updates
-
-## Trading Strategy
-
-The system uses a comprehensive trading strategy that considers multiple factors:
-
-1. **Supply-Demand Analysis**
-   - Compares total power generation (wind + solar) with total demand
-   - Considers current storage levels
-   - Evaluates future predictions
-
-2. **Trading Actions**
-   - **Buy**: When total generation is less than demand and storage is low
-   - **Sell**: When total generation exceeds demand and storage is high
-   - **Hold**: When storage levels are sufficient or supply-demand difference is small
-
-3. **Confidence Levels**
-   - High confidence (>60%): Clear supply-demand imbalance
-   - Low confidence (<60%): Small supply-demand difference
-   - Recommendations include confidence percentage
-
-4. **Storage Management**
-   - Monitors current storage levels
-   - Tracks 24-hour minimum and maximum storage
-   - Considers storage capacity (30 kWh)
-   - Provides storage percentage utilization
-
-5. **Risk Management**
-   - Cautious operation recommended for low confidence scenarios
-   - Considers storage buffer for system stability
-   - Evaluates multiple time horizons for decision making
-
 ## Technical Stack
 
 - Frontend: Next.js, React, TailwindCSS
@@ -279,19 +243,3 @@ The system uses a comprehensive trading strategy that considers multiple factors
 
 - WebSocket: ws://127.0.0.1:8000/ws
 - REST API: http://127.0.0.1:8000/docs
-
-## Data Flow
-
-1. Real-time data collection from energy sources
-2. ML model predictions for future values
-3. Trading strategy analysis
-4. WebSocket updates to frontend
-5. Real-time visualization updates
-
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Commit your changes
-4. Push to the branch
-5. Create a Pull Request
