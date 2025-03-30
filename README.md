@@ -159,7 +159,7 @@ python model.py
 ```bash
 # Start backend
 cd model_simulation/backend
-uvicorn main:app --reload --host 0.0.0.0 --port 8000
+uvicorn main:app --reload --host 127.0.0.1 --port 8000
 
 # Start frontend (in a new terminal)
 cd model_simulation/frontend
@@ -169,8 +169,8 @@ npm run dev
 
 ## Usage
 
-1. Access the web application at `http://localhost:5173`
-2. The backend API will be running at `http://localhost:8000`
+1. Access the web application at `http://localhost:3000`
+2. The backend API will be running at `http://127.0.0.1:8000`
 3. Use the web interface to:
    - **Storage Monitoring**
      - View current hour storage levels
@@ -196,3 +196,102 @@ npm run dev
 * **Model Optimization**: Further optimize the LSTM architecture for better performance
 * **Real-time Monitoring**: Add real-time monitoring capabilities for continuous prediction
 * **API Integration**: Enable integration with external energy monitoring systems
+
+# Energy Trading System
+
+A real-time energy trading system that uses machine learning to predict energy production and consumption, and provides trading recommendations.
+
+## Features
+
+- Real-time energy monitoring dashboard
+- Machine learning-based predictions for:
+  - Wind power generation
+  - Solar power generation
+  - Power consumption
+- Storage level analysis
+- Automated trading recommendations
+- WebSocket-based real-time updates
+
+## Trading Strategy
+
+The system uses a comprehensive trading strategy that considers multiple factors:
+
+1. **Supply-Demand Analysis**
+   - Compares total power generation (wind + solar) with total demand
+   - Considers current storage levels
+   - Evaluates future predictions
+
+2. **Trading Actions**
+   - **Buy**: When total generation is less than demand and storage is low
+   - **Sell**: When total generation exceeds demand and storage is high
+   - **Hold**: When storage levels are sufficient or supply-demand difference is small
+
+3. **Confidence Levels**
+   - High confidence (>60%): Clear supply-demand imbalance
+   - Low confidence (<60%): Small supply-demand difference
+   - Recommendations include confidence percentage
+
+4. **Storage Management**
+   - Monitors current storage levels
+   - Tracks 24-hour minimum and maximum storage
+   - Considers storage capacity (30 kWh)
+   - Provides storage percentage utilization
+
+5. **Risk Management**
+   - Cautious operation recommended for low confidence scenarios
+   - Considers storage buffer for system stability
+   - Evaluates multiple time horizons for decision making
+
+## Technical Stack
+
+- Frontend: Next.js, React, TailwindCSS
+- Backend: FastAPI, Python
+- Machine Learning: PyTorch
+- Real-time Communication: WebSocket
+- Data Visualization: Recharts
+
+## Setup
+
+1. Clone the repository
+2. Install dependencies:
+   ```bash
+   # Backend
+   cd model_simulation/backend
+   pip install -r requirements.txt
+
+   # Frontend
+   cd model_simulation/frontend
+   npm install
+   ```
+
+3. Start the servers:
+   ```bash
+   # Backend (from model_simulation/backend)
+   uvicorn main:app --reload --host 127.0.0.1 --port 8000
+
+   # Frontend (from model_simulation/frontend)
+   npm run dev
+   ```
+
+4. Access the dashboard at http://localhost:3000
+
+## API Endpoints
+
+- WebSocket: ws://127.0.0.1:8000/ws
+- REST API: http://127.0.0.1:8000/docs
+
+## Data Flow
+
+1. Real-time data collection from energy sources
+2. ML model predictions for future values
+3. Trading strategy analysis
+4. WebSocket updates to frontend
+5. Real-time visualization updates
+
+## Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Commit your changes
+4. Push to the branch
+5. Create a Pull Request

@@ -3,5 +3,6 @@ uvicorn
 torch
 pandas
 numpy
+python-dotenv
 websockets
 python-multipart

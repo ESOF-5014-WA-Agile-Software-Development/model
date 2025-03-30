@@ -3,7 +3,7 @@ from model_definition import LSTMPredictor
 
 def load_model(model_path):
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-    input_size = 3  # ← 明确这里为3维！
+    input_size = 3  # Explicitly set to 3 dimensions!
     hidden_size = 64
     num_layers = 2
 
@@ -14,35 +14,41 @@ def load_model(model_path):
     return model, device
 
 def predict_next_hour(model, recent_sequence, device):
+    """Predict values for the next hour"""
     with torch.no_grad():
         input_seq = torch.FloatTensor(recent_sequence).unsqueeze(0).to(device)
         prediction = model(input_seq)
-    return prediction.cpu().numpy()
+        # Ensure return is a 1D array
+        return prediction.squeeze().cpu().numpy()
 
-
-from predict import predict_next_hour
-import torch
-
-def predict_multiple_hours(model, recent_sequence, device, hours=24):
-    seq = recent_sequence.copy()
-    future_predictions = []
-
-    for _ in range(hours):
-        pred = predict_next_hour(model, seq, device).flatten().tolist()
-        future_predictions.append(pred)
-        seq = seq[1:] + [pred]  # 滚动窗口
-
-    return future_predictions
+def predict_multiple_hours(model, input_sequence, device, hours=10):
+    """Predict values for multiple future hours"""
+    model.eval()
+    predictions = []
+    
+    with torch.no_grad():
+        current_sequence = input_sequence.copy()
+        for _ in range(hours):
+            # Predict next hour
+            pred = predict_next_hour(model, current_sequence, device)
+            predictions.append({
+                'P_wind': float(pred[0]),
+                'P_solar': float(pred[1]),
+                'house_consumption': float(pred[2])
+            })
+            # Update sequence
+            current_sequence = current_sequence[1:] + [list(pred)]
+    
+    return predictions
 
 import numpy as np
 
 def calculate_trade_action(storage, future_predictions, capacity_max=30.0):
     """
-    Advanced trading strategy with:
-    - Dynamic threshold adjustment based on prediction confidence
-    - Multiple time horizon analysis
-    - Risk management and volatility consideration
-    - Market trend analysis
+    Aggressive oscillation with:
+    - 20-hour forecast window
+    - Looser buy/sell thresholds
+    - Random noise for simulation volatility
     """
     # Initialize storage projection
     future_storage = [storage]
