@@ -104,40 +104,27 @@ The web application provides an interactive interface for simulating and visuali
 ### Application Functions
 The model simulation includes additional optimization functions:
 
-1. **Multi-hour Prediction**
-   - Extends predictions to multiple time horizons
-   - Provides trend analysis for future consumption
-   - Enables long-term planning and optimization
+### Confidence Assessment
+Evaluates prediction reliability by incorporating random noise to simulate realistic forecast volatility, quantifying confidence as a function of prediction stability:
 
-2. **Energy Trading System**
-   - Advanced trading strategy with multiple decision factors:
-     - Dynamic threshold adjustment based on prediction confidence
-     - Multiple time horizon analysis
-     - Risk management and volatility consideration
-     - Market trend analysis
-   - Supply-Demand Analysis:
-     - Compares total power generation (wind + solar) with total demand
-     - Considers current storage levels
-     - Evaluates future predictions
-   - Trading Actions:
-     - Buy: When total generation is less than demand and storage is low
-     - Sell: When total generation exceeds demand and storage is high
-     - Hold: When storage levels are sufficient or supply-demand difference is small
-   - Confidence-based decision making:
-     - High confidence (>60%): Clear supply-demand imbalance
-     - Low confidence (<60%): Small supply-demand difference
-     - Risk-adjusted position sizing
-   - Storage Management:
-     - Monitors current storage levels
-     - Tracks 24-hour minimum and maximum storage
-     - Considers storage capacity (30 kWh)
-     - Provides storage percentage utilization
-   - Risk Management:
-     - Cautious operation recommended for low confidence scenarios
-     - Considers storage buffer for system stability
-     - Maximum trade size limits
-     - Trend-based position sizing
-     - Volatility-adjusted confidence scoring
+![Confidence Formula](https://latex.codecogs.com/svg.image?\epsilon\sim&space;N(0,&space;0.01^2),\quad\text{Confidence}=1-|\epsilon|)
+
+### Storage Projections
+Simulates future energy storage conditions by accounting for predicted power generation and consumption, storage capacity constraints, and forecast uncertainties:
+
+![Storage Projection Formula](https://latex.codecogs.com/svg.image?\text{FutureStorage}_{t+1}=\min\left(C_{max},\max\left(0,\text{Storage}_{t}+(P_{wind,t}+P_{solar,t}-C_{house,t}+\epsilon)\right)\right),\quad&space;C_{max}=30.0\,\text{kWh})
+
+
+### Risk Management Thresholds
+Defines clear operational thresholds for maintaining system stability and resource allocation:
+
+![Risk Management Thresholds](https://latex.codecogs.com/svg.image?\text{Risk&space;threshold}=0.7\times&space;C_{max},\quad\text{Safety&space;threshold}=0.3\times&space;C_{max})
+
+### Market Trend Analysis
+Uses linear regression trend analysis derived from storage projections to reinforce trading decisions, allowing responsive adjustments to emerging market conditions:
+
+![Market Trend Analysis](https://latex.codecogs.com/svg.image?\text{StorageTrend}=\text{slope}\left(\text{Storage}_{t:t+n}\right))
+
 
 ## Getting Started
 
